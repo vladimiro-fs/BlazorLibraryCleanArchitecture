@@ -1,0 +1,100 @@
+﻿@if (Book != null)
+{
+    <EditForm Enhance="true" method="post" FormName="BookForm" OnValidSubmit="AddEditBook"
+              Model="Book" id="addEditBook">
+
+        <h3>@Header</h3>
+
+        @if (EditingMode)
+        {
+            <input type="hidden" name="Book.BookId" value="@Book.BookId" />    
+        }
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <InputText id="title" @bind-Value="Book.Title" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="author" class="form-label">Author</label>
+            <InputText id="author" @bind-Value="Book.Author" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="releaseDate" class="form-label">Release Date</label>
+            <InputDate id="releaseDate" @bind-Value="Book.ReleaseDate" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="publisher" class="form-label">Publisher</label>
+            <InputSelect id="publisher" @bind-Value="Book.Publisher" class="form-control">
+                <option value="0">
+                    Select the publisher
+                </option>
+                @foreach (var publisher in Enum.GetValues(typeof(Publisher)))
+                {
+                    <option value="@publisher">
+                        @publisher.ToString()
+                    </option>
+                }
+            </InputSelect>
+        </div>
+        <div class="mb-3">
+            <label for="cover" class="form-label">Cover</label>
+            <InputText id="cover" @bind-Value="Book.Cover" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <InputSelect id="category" @bind-Value="Book.Category" class="form-control">
+                <option value="0">
+                    Select a category
+                </option>
+                @foreach (var category in Enum.GetValues(typeof(Category)))
+                {
+                    <option value="@category">
+                        @category.ToString()
+                    </option>
+                }
+            </InputSelect>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary shadow-none">
+                Send
+            </button>
+            <a href="/books" class="btn btn-secondary ms-3">
+                Back to list
+            </a>
+        </div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </EditForm>
+}
+
+@code {
+
+    [Parameter]
+    public bool EditingMode { get; set; } = false;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public EventCallback<Book> OnValidateBookSubmit { get; set; }
+
+    [SupplyParameterFromForm(FormName ="BookForm")]
+    public Book? Book { get; set; }
+
+    private string Header => EditingMode 
+        ? $"Edit Book {Id}" 
+        : "New Book";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EditingMode) 
+            Book ??= await bookRepository.GetBook(Id);
+        else
+            Book ??= new Book(0, null, null, DateTime.Now, null, Publisher.None, Category.None);
+    }
+
+    private async Task AddEditBook ()
+    {
+        await OnValidateBookSubmit.InvokeAsync(Book);
+    }
+}

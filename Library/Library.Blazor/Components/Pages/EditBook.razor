@@ -1,0 +1,22 @@
+﻿@page "/editbook/{id:int}"
+
+<PageTitle>Edit Book</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-6">
+        <BookForm EditingMode="true" Id="@Id" OnValidateBookSubmit="ModifyBook" />
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private async Task ModifyBook(Book book)
+    {
+        await bookRepository.UpdateBook(book);
+        navigation.NavigateTo("/books");
+    }
+}
