@@ -1,5 +1,4 @@
 ﻿@page "/books"
-@attribute [StreamRendering]
 
 <h3>Books Catalog</h3>
 
@@ -16,7 +15,7 @@ else
     <div class="row">
         @foreach (var book in books)
         {
-            <BooksCard Book="@book" />    
+            <BooksCard @rendermode="InteractiveServer" Book="@book" />    
         }
     </div>    
 }

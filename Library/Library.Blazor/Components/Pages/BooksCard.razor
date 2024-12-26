@@ -8,13 +8,39 @@
             <p class="card-text">Release date: @book.ReleaseDate.ToShortDateString()</p>
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <a href="/editbook/@book.BookId" class="btn btn-primary">Edit</a>
+                <button @onclick="ConfirmDialog" class="btn btn-danger">Delete</button>
             </div>
         </div>
     </div>
 </div>
 
+<DialogComponent Show="showDialog"
+                 OnCancel="CancelDeletion"
+                 OnDelete="ConfirmDeletion">
+    <h3 style="color:red;font-weight:bold">Do you really want to delete this book: Id=@book.BookId ?</h3>
+</DialogComponent>
+
 @code {
+
+    private bool showDialog;
 
     [Parameter]
     public required Book? book { get; set; }
+
+    private void ConfirmDialog()
+    {
+        showDialog = true;    
+    }
+
+    private void CancelDeletion()
+    {
+        showDialog = false;    
+    }
+
+    private async Task ConfirmDeletion()
+    {
+        await bookRepository.RemoveBook(book.BookId);
+        showDialog = false;
+        navigation.NavigateTo("/books");
+    }
 }
